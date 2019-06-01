@@ -118,16 +118,16 @@ typedef enum
 #define LEDn                             4
 
 #define LED1_PIN                         GPIO_Pin_3
-#define LED1_GPIO_PORT                   GPIOD
-#define LED1_GPIO_CLK                    RCC_AHBPeriph_GPIOD  
+#define LED1_GPIO_PORT                   GPIOA
+#define LED1_GPIO_CLK                    RCC_AHBPeriph_GPIOA
   
-#define LED2_PIN                         GPIO_Pin_7
-#define LED2_GPIO_PORT                   GPIOD
-#define LED2_GPIO_CLK                    RCC_AHBPeriph_GPIOD  
+#define LED2_PIN                         GPIO_Pin_2
+#define LED2_GPIO_PORT                   GPIOA
+#define LED2_GPIO_CLK                    RCC_AHBPeriph_GPIOA
 
-#define LED3_PIN                         GPIO_Pin_14  
-#define LED3_GPIO_PORT                   GPIOG
-#define LED3_GPIO_CLK                    RCC_AHBPeriph_GPIOG  
+#define LED3_PIN                         GPIO_Pin_12  
+#define LED3_GPIO_PORT                   GPIOB
+#define LED3_GPIO_CLK                    RCC_AHBPeriph_GPIOB
 
 #define LED4_PIN                         GPIO_Pin_15
 #define LED4_GPIO_PORT                   GPIOG
@@ -220,24 +220,25 @@ typedef enum
 #define COMn                             1
 
 /**
- * @brief Definition for COM port1, connected to USART1
+ * @brief Definition for COM port1, connected to USART3
  */ 
-#define EVAL_COM1                        USART1
-#define EVAL_COM1_CLK                    RCC_APB2Periph_USART1
+#define EVAL_COM1                        USART3
+#define EVAL_COM1_CLK                    RCC_APB1Periph_USART3
 
-#define EVAL_COM1_TX_PIN                 GPIO_Pin_9
-#define EVAL_COM1_TX_GPIO_PORT           GPIOA
-#define EVAL_COM1_TX_GPIO_CLK            RCC_AHBPeriph_GPIOA
-#define EVAL_COM1_TX_SOURCE              GPIO_PinSource9
-#define EVAL_COM1_TX_AF                  GPIO_AF_USART1
+#define EVAL_COM1_TX_PIN                 GPIO_Pin_10
+#define EVAL_COM1_TX_GPIO_PORT           GPIOB
+#define EVAL_COM1_TX_GPIO_CLK            RCC_AHBPeriph_GPIOB
+#define EVAL_COM1_TX_SOURCE              GPIO_PinSource10
+#define EVAL_COM1_TX_AF                  GPIO_AF_USART3
 
-#define EVAL_COM1_RX_PIN                 GPIO_Pin_10
-#define EVAL_COM1_RX_GPIO_PORT           GPIOA
-#define EVAL_COM1_RX_GPIO_CLK            RCC_AHBPeriph_GPIOA
-#define EVAL_COM1_RX_SOURCE              GPIO_PinSource10
-#define EVAL_COM1_RX_AF                  GPIO_AF_USART1
+#define EVAL_COM1_RX_PIN                 GPIO_Pin_11
+#define EVAL_COM1_RX_GPIO_PORT           GPIOB
+#define EVAL_COM1_RX_GPIO_CLK            RCC_AHBPeriph_GPIOB
+#define EVAL_COM1_RX_SOURCE              GPIO_PinSource11
+#define EVAL_COM1_RX_AF                  GPIO_AF_USART3
 
-#define EVAL_COM1_IRQn                   USART1_IRQn
+#define EVAL_COM1_IRQn                   USART3_IRQn
+#define USARTx_IRQHandler								 USART3_IRQHandler
 
 /**
   * @}

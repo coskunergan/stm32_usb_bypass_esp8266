@@ -49,7 +49,8 @@
 /* Extern variables ----------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-
+uint8_t reset_state = 0;
+extern uint8_t USB_Rx_Buffer[];
 /*******************************************************************************
 * Function Name  : main.
 * Description    : Main routine.
@@ -57,16 +58,46 @@
 * Output         : None.
 * Return         : None.
 *******************************************************************************/
+#define BOOT  LED2// Wifi Boot Pin
+#define RESET LED3// Wifi Reset Pin
 int main(void)
 {
-  Set_System();
-  Set_USBClock();
-  USB_Interrupts_Config();
-  USB_Init();
-  
-  while (1)
-  {
-  }
+    STM_EVAL_LEDInit(BOOT);
+    STM_EVAL_LEDOn(BOOT);
+    STM_EVAL_LEDInit(RESET);
+    Set_System();
+    Set_USBClock();
+    USB_Interrupts_Config();
+    USB_Init();
+    STM_EVAL_LEDInit(LED1);
+
+    while(1)
+    {
+        ///////////////////////////////////////////////
+        for(volatile uint32_t i = 0; i < 500000; i++);
+        ///////////////////////////////////////////////
+        if(reset_state == 0)
+        {
+            STM_EVAL_LEDToggle(LED1);
+        }
+        else
+        {
+            STM_EVAL_LEDOn(LED1);
+        }
+        if((USB_Rx_Buffer[0] == 0xC0) &&
+                (USB_Rx_Buffer[1] == 0x40) &&
+                (USB_Rx_Buffer[2] == 0x12) &&
+                (USB_Rx_Buffer[3] == 0x20) &&
+                (USB_Rx_Buffer[4] == 0x55) &&
+                (USB_Rx_Buffer[5] == 0x55) &&
+                (reset_state == 0))
+        {
+            reset_state = 1;
+            STM_EVAL_LEDOn(RESET);
+            for(volatile uint32_t i = 0; i < 500000; i++);
+            STM_EVAL_LEDOff(RESET);
+        }
+    }
 }
 #ifdef USE_FULL_ASSERT
 /*******************************************************************************
@@ -78,14 +109,14 @@ int main(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void assert_failed(uint8_t* file, uint32_t line)
+void assert_failed(uint8_t *file, uint32_t line)
 {
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    /* User can add his own implementation to report the file name and line number,
+       ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 
-  /* Infinite loop */
-  while (1)
-  {}
+    /* Infinite loop */
+    while(1)
+    {}
 }
 #endif
 

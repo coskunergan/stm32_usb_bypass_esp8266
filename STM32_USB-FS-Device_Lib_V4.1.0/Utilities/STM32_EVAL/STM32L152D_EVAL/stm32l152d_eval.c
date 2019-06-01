@@ -345,7 +345,14 @@ void STM_EVAL_COMInit(COM_TypeDef COM, USART_InitTypeDef* USART_InitStruct)
   RCC_AHBPeriphClockCmd(COM_TX_PORT_CLK[COM] | COM_RX_PORT_CLK[COM], ENABLE);
 
   /* Enable USART1 clock */
-  RCC_APB2PeriphClockCmd(COM_USART_CLK[COM], ENABLE); 
+	if(COM_USART[COM] ==  USART1 )
+	{
+		RCC_APB2PeriphClockCmd(COM_USART_CLK[COM], ENABLE); 
+	}
+	else
+	{
+		RCC_APB1PeriphClockCmd(COM_USART_CLK[COM], ENABLE); 
+	}
 
   /* Connect PXx to USARTx_Tx */
   GPIO_PinAFConfig(COM_TX_PORT[COM], COM_TX_PIN_SOURCE[COM], COM_TX_AF[COM]);

@@ -252,7 +252,7 @@
 #if defined (USE_STM32L152_EVAL) || (USE_STM32373C_EVAL)
  #define EVAL_COM1_IRQHandler                USART2_IRQHandler
 #elif defined (USE_STM32L152D_EVAL) || (USE_STM32303C_EVAL)
- #define EVAL_COM1_IRQHandler              USART1_IRQHandler
+ #define EVAL_COM1_IRQHandler              USARTx_IRQHandler
 #endif
 
 /* Exported macro ------------------------------------------------------------*/
