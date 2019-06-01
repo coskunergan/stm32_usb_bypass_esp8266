@@ -44,13 +44,21 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+#define BOOT  LED2// Wifi Boot Pin
+#define RESET LED3// Wifi Reset Pin
+#define BUZZER LED4// Wifi Reset Pin
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Extern variables ----------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-uint8_t reset_state = 0;
+extern uint8_t  USART_Rx_Buffer[];
+extern uint32_t USART_Rx_ptr_in;
+uint8_t reset_state = 0, temp;
 extern uint8_t USB_Rx_Buffer[];
+typedef  void (*pFunction)(void);
+pFunction Jump_To_DFU;
+uint32_t JumpAddress;
 /*******************************************************************************
 * Function Name  : main.
 * Description    : Main routine.
@@ -58,18 +66,53 @@ extern uint8_t USB_Rx_Buffer[];
 * Output         : None.
 * Return         : None.
 *******************************************************************************/
-#define BOOT  LED2// Wifi Boot Pin
-#define RESET LED3// Wifi Reset Pin
+#define Boot_Key_Adr 0x2000BFF8
+#define Boot_DFU_Adr 0x1FF00000
+#define Boot_Key		 0xDEADBEEF
+void Start_DFU(void)
+{
+    SYSCFG_USBPuCmd(DISABLE);
+    SYSCFG_DeInit();
+    for(uint8_t i = 0; i < 15; i++)// blink led
+    {
+        for(volatile uint32_t i = 0; i < 100000; i++);
+        STM_EVAL_LEDToggle(LED1);
+        STM_EVAL_LEDToggle(BUZZER);
+
+    }
+    *((unsigned long *)Boot_Key_Adr) = Boot_Key; // 48KB STM32L152D
+    NVIC_SystemReset();
+}
+/*******************************************************************************
+* Function Name  : main.
+* Description    : Main routine.
+* Input          : None.
+* Output         : None.
+* Return         : None.
+*******************************************************************************/
+
 int main(void)
 {
+    if(*(uint32_t *)Boot_Key_Adr == Boot_Key)
+    {
+        *(uint32_t *)Boot_Key_Adr = 0;
+        JumpAddress = *(__IO uint32_t *)(Boot_DFU_Adr + 4);
+        Jump_To_DFU = (pFunction) JumpAddress;
+        __set_MSP(*(__IO uint32_t *) Boot_DFU_Adr);
+        Jump_To_DFU();
+    }
     STM_EVAL_LEDInit(BOOT);
     STM_EVAL_LEDOn(BOOT);
     STM_EVAL_LEDInit(RESET);
+    STM_EVAL_LEDInit(BUZZER);
     Set_System();
     Set_USBClock();
     USB_Interrupts_Config();
     USB_Init();
     STM_EVAL_LEDInit(LED1);
+    STM_EVAL_LEDOn(BUZZER);
+    for(volatile uint32_t i = 0; i < 100000; i++);
+    STM_EVAL_LEDOff(BUZZER);
 
     while(1)
     {
@@ -94,9 +137,33 @@ int main(void)
         {
             reset_state = 1;
             STM_EVAL_LEDOn(RESET);
+            STM_EVAL_LEDOn(BUZZER);
             for(volatile uint32_t i = 0; i < 500000; i++);
+            STM_EVAL_LEDOff(BUZZER);
             STM_EVAL_LEDOff(RESET);
         }
+
+        /////////////////////////////////////////////////
+        if(USB_Rx_Buffer[0] == 0x68 &&
+                USB_Rx_Buffer[1] == 0xB  &&
+                USB_Rx_Buffer[2] == 0xB  &&
+                USB_Rx_Buffer[3] == 0x68  &&
+                USB_Rx_Buffer[4] == 0x53  &&
+                USB_Rx_Buffer[5] == 0xFD  &&
+                USB_Rx_Buffer[6] == 0x52  &&
+                USB_Rx_Buffer[7] == 0xFF  &&
+                USB_Rx_Buffer[8] == 0xFF  &&
+                USB_Rx_Buffer[9] == 0xFF  &&
+                USB_Rx_Buffer[10] == 0xFF  &&
+                USB_Rx_Buffer[11] == 0xFF  &&
+                USB_Rx_Buffer[12] == 0xFF  &&
+                USB_Rx_Buffer[13] == 0xFF  &&
+                USB_Rx_Buffer[14] == 0x31  &&
+                USB_Rx_Buffer[15] == 0xCC)
+        {
+            Start_DFU();
+        }
+        /////////////////////////////////////////////////
     }
 }
 #ifdef USE_FULL_ASSERT
